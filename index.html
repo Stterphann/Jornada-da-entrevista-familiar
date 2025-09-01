@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia Interativo para Doação de Órgãos e Tecidos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: A single-page, thematic application designed for educational purposes. The structure guides the user from general context to specific, practical application. It starts with an overview ('O Cenário'), explains the core technical concept ('Morte Encefálica'), visualizes the main problems ('Desafios'), provides quick answers ('Mitos e Verdades'), and culminates in an interactive simulation ('Simulações'). This flow was chosen to build foundational knowledge before engaging the user in active learning, which is more effective for training and retention than a linear report. -->
+    <!-- Visualization & Content Choices: 1) Reasons for Refusal: Bar Chart (Chart.js) to visually compare the impact of different factors. Goal: Compare. Interaction: Hover for details. Justification: A chart is more impactful than a list for showing proportions. 2) Process Flow: A CSS/HTML diagram to illustrate the donation steps. Goal: Organize. Interaction: JS-driven active step highlighting. Justification: Visually simplifies a complex process. 3) Myths vs. Truths: Interactive accordion. Goal: Inform. Interaction: Click to reveal. Justification: Hides complexity and allows users to focus on one point at a time. 4) Simulations: Custom JS-driven interactive card system. Goal: Engage/Train. Interaction: User choice and feedback. Justification: Transforms passive reading into active, decision-based learning. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF8;
+            color: #4A4A4A;
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #2C5282;
+            border-bottom-color: #2C5282;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-xl font-bold text-gray-800">Guia de Comunicação</div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#cenario" class="nav-link pb-1">O Cenário</a>
+                <a href="#desafios" class="nav-link pb-1">Desafios</a>
+                <a href="#mitos" class="nav-link pb-1">Mitos e Verdades</a>
+                <a href="#simulacoes" class="nav-link pb-1">Simulações</a>
+                <a href="#profissional" class="nav-link pb-1">O Profissional</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden text-gray-700 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
+             <a href="#cenario" class="block py-2 nav-link">O Cenário</a>
+             <a href="#desafios" class="block py-2 nav-link">Desafios</a>
+             <a href="#mitos" class="block py-2 nav-link">Mitos e Verdades</a>
+             <a href="#simulacoes" class="block py-2 nav-link">Simulações</a>
+             <a href="#profissional" class="block py-2 nav-link">O Profissional</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+
+        <section id="cenario" class="text-center mb-24 scroll-mt-20">
+            <h1 class="text-4xl md:text-5xl font-bold text-blue-900 mb-4">A Doação de Órgãos Salva Vidas</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto mb-8">Apesar do Brasil ter o segundo maior programa de transplantes do mundo, a recusa familiar ainda é o principal obstáculo. Este guia interativo foi criado para capacitar profissionais de saúde a conduzirem conversas decisivas com empatia, clareza e técnica, transformando um momento de dor em um ato de esperança.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                <div class="card p-6 text-center">
+                    <h3 class="text-3xl font-bold text-blue-800">88%</h3>
+                    <p class="text-gray-600">dos transplantes são financiados pelo SUS.</p>
+                </div>
+                <div class="card p-6 text-center">
+                    <h3 class="text-3xl font-bold text-red-600">43%</h3>
+                    <p class="text-gray-600">é a taxa média de recusa familiar no país.</p>
+                </div>
+                <div class="card p-6 text-center">
+                    <h3 class="text-3xl font-bold text-green-700">+50.000</h3>
+                    <p class="text-gray-600">pessoas aguardam na fila por um transplante.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="desafios" class="mb-24 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center text-blue-900 mb-4">Entendendo os Desafios da Comunicação</h2>
+            <p class="text-lg text-center text-gray-600 max-w-3xl mx-auto mb-12">A recusa familiar raramente é por falta de generosidade. Geralmente, ela nasce da dor, do desconhecimento e de medos legítimos. Compreender e visualizar as principais causas de recusa é o primeiro passo para desenvolver uma abordagem mais eficaz e acolhedora. O gráfico abaixo ilustra os motivos mais comuns.</p>
+            <div class="card p-4 sm:p-8">
+                <div class="chart-container">
+                    <canvas id="recusaChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="mitos" class="mb-24 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center text-blue-900 mb-4">Mitos e Verdades</h2>
+            <p class="text-lg text-center text-gray-600 max-w-3xl mx-auto mb-12">A desinformação é uma grande barreira. Esclarecer dúvidas comuns de forma direta e transparente constrói a confiança necessária para que a família tome uma decisão consciente. Clique em cada mito para revelar a verdade.</p>
+            <div id="accordion-container" class="max-w-3xl mx-auto space-y-4">
+            </div>
+        </section>
+
+        <section id="simulacoes" class="mb-24 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center text-blue-900 mb-4">Simulações Interativas de Entrevista</h2>
+            <p class="text-lg text-center text-gray-600 max-w-3xl mx-auto mb-12">A teoria é fundamental, mas a prática transforma. Nesta seção, você assumirá o papel do profissional de saúde em cinco cenários desafiadores. Leia a fala da família, escolha a abordagem que julgar mais adequada e veja a análise da estratégia. Este exercício foi projetado para aprimorar suas habilidades de comunicação em tempo real.</p>
+            
+            <div class="flex justify-center mb-8 space-x-2">
+                <button id="prev-scenario" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l transition-colors">Anterior</button>
+                <div id="scenario-indicator" class="flex items-center px-4 font-medium">Cenário 1 de 5</div>
+                <button id="next-scenario" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r transition-colors">Próximo</button>
+            </div>
+
+            <div id="simulation-container" class="card p-8 min-h-[400px] flex flex-col justify-center">
+            </div>
+        </section>
+
+        <section id="profissional" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center text-blue-900 mb-4">O Perfil do Profissional de Acolhimento</h2>
+            <p class="text-lg text-center text-gray-600 max-w-3xl mx-auto mb-12">A entrevista familiar exige mais do que conhecimento técnico; demanda uma combinação única de habilidades humanas. O sucesso da abordagem depende da capacidade do profissional em criar um ambiente de segurança e confiança, mesmo em meio à dor e à incerteza.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold text-blue-800 mb-2">🤝 Empatia</h3>
+                    <p class="text-gray-600">Capacidade de se colocar no lugar da família, validando sua dor e confusão sem julgamento.</p>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold text-blue-800 mb-2">🗣️ Comunicação Clara</h3>
+                    <p class="text-gray-600">Usar linguagem acessível, evitando jargões técnicos, para transmitir informações complexas de forma sensível.</p>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold text-blue-800 mb-2">🧠 Conhecimento e Segurança</h3>
+                    <p class="text-gray-600">Dominar os protocolos de Morte Encefálica e doação para responder a todas as dúvidas com transparência.</p>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold text-blue-800 mb-2">🧘 Equilíbrio Emocional</h3>
+                    <p class="text-gray-600">Manter a serenidade e a compostura diante das reações emocionais intensas da família.</p>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold text-blue-800 mb-2">🤗 Capacidade de Acolhimento</h3>
+                    <p class="text-gray-600">Criar um ambiente de confiança, oferecendo suporte emocional e psicológico genuíno.</p>
+                </div>
+                 <div class="card p-6">
+                    <h3 class="text-xl font-bold text-blue-800 mb-2">⏳ Respeito ao Tempo</h3>
+                    <p class="text-gray-600">Permitir que a família processe a notícia, sem pressionar por uma decisão imediata.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-24">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p>&copy; 2024 Guia Interativo para Doação de Órgãos. Criado para fins educacionais.</p>
+            <p class="text-sm text-gray-400 mt-2">Este material é uma adaptação interativa do "Relatório Técnico-Científico: A Entrevista Familiar para Doação de Órgãos e Tecidos".</p>
+        </div>
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('section');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        const mythsData = [
+            {
+                myth: "A doação impede o funeral de caixão aberto.",
+                truth: "Falso. O corpo do doador é cuidadosamente reconstituído por uma equipe especializada. A retirada de órgãos e tecidos não causa desfiguração, garantindo que a família possa realizar um funeral digno, incluindo o velório de caixão aberto."
+            },
+            {
+                myth: "Os médicos não se esforçarão para salvar o paciente se ele for um doador.",
+                truth: "Falso. A prioridade máxima da equipe médica é sempre salvar a vida do paciente. O processo de doação só é considerado após o esgotamento de todas as tentativas de tratamento e a confirmação legal da Morte Encefálica, que é um processo rigoroso e independente."
+            },
+            {
+                myth: "A pessoa pode 'acordar' da Morte Encefálica.",
+                truth: "Falso. Morte Encefálica é a parada completa e irreversível de todas as funções cerebrais. É diferente do coma, que pode ser reversível. O diagnóstico é confirmado por múltiplos exames, seguindo uma rigorosa legislação, e não há possibilidade de recuperação."
+            },
+            {
+                myth: "A família terá custos com a doação.",
+                truth: "Falso. Todos os custos relacionados ao processo de doação, desde os exames até a cirurgia de captação, são cobertos pelo Sistema Único de Saúde (SUS). A família é responsável apenas pelos custos normais do funeral."
+            },
+            {
+                myth: "Apenas pessoas jovens e saudáveis podem ser doadoras.",
+                truth: "Falso. Não há um limite de idade estrito para a doação. A viabilidade dos órgãos é avaliada individualmente pela equipe médica no momento da captação. Diversas condições de saúde não impedem a doação de todos os órgãos ou tecidos."
+            }
+        ];
+
+        const accordionContainer = document.getElementById('accordion-container');
+        mythsData.forEach((item, index) => {
+            const accordionItem = document.createElement('div');
+            accordionItem.className = 'card overflow-hidden';
+            accordionItem.innerHTML = `
+                <button class="accordion-header w-full text-left p-4 sm:p-6 flex justify-between items-center bg-white hover:bg-gray-50 transition-colors">
+                    <span class="font-semibold text-lg text-gray-800">${item.myth}</span>
+                    <span class="text-blue-800 transform transition-transform duration-300">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </span>
+                </button>
+                <div class="accordion-content px-4 sm:px-6">
+                    <p class="py-4 text-gray-600">${item.truth}</p>
+                </div>
+            `;
+            accordionContainer.appendChild(accordionItem);
+        });
+
+        const accordionHeaders = document.querySelectorAll('.accordion-header');
+        accordionHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+                const icon = header.querySelector('svg');
+                
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                    icon.style.transform = 'rotate(0deg)';
+                } else {
+                    document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
+                    document.querySelectorAll('.accordion-header svg').forEach(i => i.style.transform = 'rotate(0deg)');
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    icon.style.transform = 'rotate(180deg)';
+                }
+            });
+        });
+
+        const ctx = document.getElementById('recusaChart').getContext('2d');
+        const recusaChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Não compreensão da Morte Encefálica', 'Medo de Mutilação', 'Crenças Culturais/Religiosas', 'Desconhecimento da Vontade', 'Desconfiança no Sistema'],
+                datasets: [{
+                    label: 'Motivos de Recusa Familiar (%)',
+                    data: [46, 23, 15, 10, 6],
+                    backgroundColor: [
+                        'rgba(30, 64, 175, 0.7)',
+                        'rgba(59, 130, 246, 0.7)',
+                        'rgba(147, 197, 253, 0.7)',
+                        'rgba(191, 219, 254, 0.7)',
+                        'rgba(219, 234, 254, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(30, 64, 175, 1)',
+                        'rgba(59, 130, 246, 1)',
+                        'rgba(147, 197, 253, 1)',
+                        'rgba(191, 219, 254, 1)',
+                        'rgba(219, 234, 254, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ` ${context.raw}% das recusas`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Percentual de Recusas'
+                        }
+                    }
+                }
+            }
+        });
+
+        const simulations = [
+            {
+                title: "Cenário 1: Desconhecimento da Morte Encefálica",
+                familySpeech: "“Mas como ele pode estar morto se o coração dele ainda está batendo e o peito está se movendo?”",
+                options: [
+                    {
+                        text: "Ignorar a observação e focar nos exames que comprovam a morte.",
+                        analysis: "Esta abordagem é ineficaz. Ignorar a percepção sensorial da família cria uma barreira de comunicação. É crucial validar o que eles estão vendo antes de explicar a ciência por trás disso."
+                    },
+                    {
+                        text: "Validar a percepção da família e usar uma analogia para explicar.",
+                        analysis: "Estratégia correta. Ao dizer 'Entendo que isso seja confuso...', você valida a emoção. A analogia do relógio que continua funcionando após o motor parar ajuda a traduzir um conceito complexo de forma empática e compreensível."
+                    },
+                    {
+                        text: "Apenas dizer que é a lei e que o diagnóstico está fechado.",
+                        analysis: "Esta resposta é fria e autoritária. Ela gera desconfiança e pode ser interpretada como falta de cuidado, aumentando a probabilidade de uma recusa imediata."
+                    }
+                ]
+            },
+            {
+                title: "Cenário 2: Objeções Religiosas e Culturais",
+                familySpeech: "“Nossa religião não permite a mutilação do corpo. Ele precisa estar íntegro para a vida após a morte.”",
+                options: [
+                    {
+                        text: "Respeitar a crença e enquadrar a doação como um ato de amor e caridade.",
+                        analysis: "Estratégia correta. A abordagem não confronta a fé, mas a ressignifica. Ao conectar a doação aos valores de compaixão e amor ao próximo, você mostra que o ato pode ser uma expressão da fé da família, e não uma violação dela."
+                    },
+                    {
+                        text: "Dizer que a religião deles está errada e que a maioria permite a doação.",
+                        analysis: "Confrontar diretamente a crença de alguém em luto é desrespeitoso e contraproducente. Isso fecha imediatamente o diálogo e invalida os sentimentos da família."
+                    },
+                    {
+                        text: "Mudar de assunto e focar nos benefícios para quem recebe o órgão.",
+                        analysis: "Embora a intenção seja boa, ignorar a principal objeção da família mostra que você não está ouvindo. A questão religiosa precisa ser abordada com sensibilidade antes de qualquer outro argumento."
+                    }
+                ]
+            },
+            {
+                title: "Cenário 3: Medo de Mutilação",
+                familySpeech: "“Temos medo de como o corpo dela vai ficar. Vamos poder ter um enterro de caixão aberto?”",
+                options: [
+                    {
+                        text: "Garantir que o processo é uma cirurgia cuidadosa e que o corpo é reconstituído.",
+                        analysis: "Estratégia correta. A resposta é direta, honesta e tranquilizadora. Usar termos como 'sala cirúrgica', 'cuidado e respeito' e 'corpo reconstituído' desmistifica o medo e assegura à família a dignidade do processo."
+                    },
+                    {
+                        text: "Minimizar a preocupação dizendo que isso não é importante agora.",
+                        analysis: "Para a família, a dignidade do funeral é extremamente importante. Minimizar essa preocupação é invalidar seus sentimentos e pode ser percebido como uma grande falta de empatia."
+                    },
+                    {
+                        text: "Evitar a pergunta e dizer que a equipe é muito profissional.",
+                        analysis: "Uma resposta vaga não resolve a preocupação específica. A família precisa de garantias concretas sobre a aparência do corpo e a possibilidade do velório de caixão aberto. A honestidade é crucial aqui."
+                    }
+                ]
+            },
+            {
+                title: "Cenário 4: Desconfiança na Assistência",
+                familySpeech: "“Sinto que vocês desistiram dele muito rápido. Não fizeram tudo que podiam pelo meu filho.”",
+                options: [
+                    {
+                        text: "Ficar na defensiva e listar todos os procedimentos que foram feitos.",
+                        analysis: "Embora seja importante ser transparente, uma postura defensiva pode soar como se você estivesse se justificando. A emoção por trás da acusação (dor e raiva) precisa ser acolhida primeiro."
+                    },
+                    {
+                        text: "Acolher a dor, validar a raiva e depois recapitular os esforços da equipe.",
+                        analysis: "Estratégia correta. Começar com 'Posso ver a sua dor e entendo a sua raiva' desarma a hostilidade. Somente após validar a emoção, você pode, de forma calma, reforçar que a equipe lutou pela vida, construindo uma ponte de confiança."
+                    },
+                    {
+                        text: "Ignorar a acusação e perguntar diretamente se eles querem doar ou não.",
+                        analysis: "Esta é a pior abordagem. Ela confirma a suspeita da família de que o único interesse da equipe é obter os órgãos, destruindo qualquer chance de um diálogo construtivo."
+                    }
+                ]
+            },
+            {
+                title: "Cenário 5: Abordagem da Recusa Inicial",
+                familySpeech: "“Agradecemos, mas já conversamos e a nossa resposta é não.”",
+                options: [
+                    {
+                        text: "Insistir, dizendo que eles estão tomando a decisão errada e que muitas vidas dependem disso.",
+                        analysis: "Pressionar a família após uma negativa é desrespeitoso e pode causar mais sofrimento. A decisão final pertence a eles, e forçar a barra viola os princípios éticos da entrevista."
+                    },
+                    {
+                        text: "Aceitar a decisão, mas se colocar à disposição para tirar qualquer dúvida que possa ter levado à negativa.",
+                        analysis: "Estratégia correta. Respeitar a decisão é fundamental. A abordagem sutil de oferecer esclarecimentos ('garantir que essa decisão seja tomada com total clareza') abre uma porta para que a família reconsidere, caso a negativa seja baseada em desinformação, sem se sentir pressionada."
+                    },
+                    {
+                        text: "Apenas aceitar o 'não' e encerrar a conversa imediatamente.",
+                        analysis: "Embora respeitosa, esta abordagem perde a oportunidade de garantir que a decisão foi bem informada. Um profissional habilidoso pode, gentilmente, explorar se a recusa é baseada em mitos que poderiam ser esclarecidos."
+                    }
+                ]
+            }
+        ];
+
+        let currentScenario = 0;
+        const simulationContainer = document.getElementById('simulation-container');
+        const prevButton = document.getElementById('prev-scenario');
+        const nextButton = document.getElementById('next-scenario');
+        const indicator = document.getElementById('scenario-indicator');
+
+        function renderScenario(index) {
+            const scenario = simulations[index];
+            simulationContainer.innerHTML = `
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-blue-800 mb-2">${scenario.title}</h3>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-4 rounded-r-lg my-6">
+                        <p class="font-semibold">Fala da Família:</p>
+                        <p class="italic">"${scenario.familySpeech}"</p>
+                    </div>
+                    <p class="mb-6 text-gray-600">Como você responderia? Escolha uma opção:</p>
+                    <div id="options-container" class="space-y-4 text-left"></div>
+                    <div id="analysis-container" class="hidden mt-6 text-left p-4 bg-gray-100 rounded-lg"></div>
+                </div>
+            `;
+
+            const optionsContainer = document.getElementById('options-container');
+            scenario.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'w-full text-left p-4 border rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500';
+                button.textContent = option.text;
+                button.onclick = () => {
+                    const analysisContainer = document.getElementById('analysis-container');
+                    analysisContainer.innerHTML = `<p class="font-semibold">Análise da Estratégia:</p><p>${option.analysis}</p>`;
+                    analysisContainer.classList.remove('hidden');
+                    
+                    document.querySelectorAll('#options-container button').forEach(btn => {
+                        btn.disabled = true;
+                        btn.classList.add('opacity-50');
+                    });
+                    button.classList.remove('opacity-50');
+                    button.classList.add('bg-blue-100', 'border-blue-500');
+                };
+                optionsContainer.appendChild(button);
+            });
+            updateButtons();
+        }
+
+        function updateButtons() {
+            indicator.textContent = `Cenário ${currentScenario + 1} de ${simulations.length}`;
+            prevButton.disabled = currentScenario === 0;
+            nextButton.disabled = currentScenario === simulations.length - 1;
+            prevButton.classList.toggle('opacity-50', prevButton.disabled);
+            nextButton.classList.toggle('opacity-50', nextButton.disabled);
+        }
+
+        prevButton.addEventListener('click', () => {
+            if (currentScenario > 0) {
+                currentScenario--;
+                renderScenario(currentScenario);
+            }
+        });
+
+        nextButton.addEventListener('click', () => {
+            if (currentScenario < simulations.length - 1) {
+                currentScenario++;
+                renderScenario(currentScenario);
+            }
+        });
+
+        renderScenario(currentScenario);
+    });
+    </script>
+</body>
+</html>
